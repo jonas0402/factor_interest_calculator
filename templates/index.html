@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Compound Interest Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --background-color: #f8f9fa;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem 0;
+        }
+        
+        .calculator-card {
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .calculator-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .btn-calculate {
+            background: linear-gradient(135deg, var(--secondary-color), var(--success-color));
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .glossary-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .glossary-item:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .formula-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .error-message {
+            background-color: #fff5f5;
+            border: 1px solid #fed7d7;
+            color: #c53030;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .factors-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin: 1rem 0;
+        }
+        
+        .scenario-card {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .scenario-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+        }
+        
+        .factor-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .nav-pills .nav-link {
+            border-radius: 25px;
+            margin: 0 0.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, var(--secondary-color), var(--success-color));
+        }
+        
+        .advanced-input {
+            background: rgba(255,255,255,0.9);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .advanced-input:focus {
+            background: white;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-chart-area me-3"></i>
+                Advanced Financial Calculator
+            </h1>
+            <p class="lead">Complete compound interest analysis with all engineering economics factors</p>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <!-- Calculator Tabs -->
+        <ul class="nav nav-pills justify-content-center mb-4" id="calculatorTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="basic-tab" data-bs-toggle="pill" data-bs-target="#basic" type="button">
+                    <i class="fas fa-calculator me-2"></i>Basic Calculator
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="advanced-tab" data-bs-toggle="pill" data-bs-target="#advanced" type="button">
+                    <i class="fas fa-cogs me-2"></i>Advanced Scenarios
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="manual-factor-tab" data-bs-toggle="pill" data-bs-target="#manual-factor" type="button">
+                    <i class="fas fa-list-alt me-2"></i>Manual Factor Calculator
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="auto-lookup-tab" data-bs-toggle="pill" data-bs-target="#auto-lookup" type="button">
+                    <i class="fas fa-search me-2"></i>Auto Factor Lookup
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="factors-tab" data-bs-toggle="pill" data-bs-target="#factors" type="button">
+                    <i class="fas fa-table me-2"></i>Factor Tables
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="calculatorTabContent">
+            <!-- Basic Calculator Tab -->
+            <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-6 mb-4">
+                        <div class="card calculator-card h-100">
+                            <div class="card-header bg-white text-center py-3">
+                                <h3 class="mb-0">
+                                    <i class="fas fa-chart-line text-primary me-2"></i>
+                                    Calculate Your Returns
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <form id="calculatorForm">
+                                    <div class="mb-3">
+                                        <label for="principal" class="form-label">
+                                            <i class="fas fa-dollar-sign text-success me-1"></i>
+                                            Principal Amount ($)
+                                        </label>
+                                        <input type="number" class="form-control advanced-input" id="principal" step="0.01" min="0" required>
+                                        <div class="form-text">Initial amount you want to invest</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="rate" class="form-label">
+                                            <i class="fas fa-percentage text-info me-1"></i>
+                                            Annual Interest Rate (%)
+                                        </label>
+                                        <input type="number" class="form-control advanced-input" id="rate" step="0.01" min="0" required>
+                                        <div class="form-text">Expected annual return percentage</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="time" class="form-label">
+                                            <i class="fas fa-clock text-warning me-1"></i>
+                                            Time Period (Years)
+                                        </label>
+                                        <input type="number" class="form-control advanced-input" id="time" step="0.1" min="0" required>
+                                        <div class="form-text">How long you plan to invest</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="compoundFrequency" class="form-label">
+                                            <i class="fas fa-sync text-primary me-1"></i>
+                                            Compound Frequency
+                                        </label>
+                                        <select class="form-select advanced-input" id="compoundFrequency" required>
+                                            <option value="1">Annually</option>
+                                            <option value="2">Semi-annually</option>
+                                            <option value="4">Quarterly</option>
+                                            <option value="12" selected>Monthly</option>
+                                            <option value="365">Daily</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label for="paymentAmount" class="form-label">
+                                            <i class="fas fa-coins text-success me-1"></i>
+                                            Annual Payment Amount ($) <span class="text-muted">(Optional)</span>
+                                        </label>
+                                        <input type="number" class="form-control advanced-input" id="paymentAmount" step="0.01" min="0">
+                                        <div class="form-text">For uniform series calculations (leave blank for single payment)</div>
+                                    </div>
+
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary btn-calculate">
+                                            <i class="fas fa-calculator me-2"></i>
+                                            Calculate All Scenarios
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <!-- Error Message -->
+                                <div id="errorMessage" class="error-message d-none"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Basic Results -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card result-card h-100" id="resultsCard" style="display: none;">
+                            <div class="card-header bg-primary text-white text-center py-3">
+                                <h3 class="mb-0">
+                                    <i class="fas fa-chart-bar me-2"></i>
+                                    Investment Results
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="icon-circle bg-success mx-auto mb-2">
+                                            <i class="fas fa-money-bill-wave"></i>
+                                        </div>
+                                        <h5>Final Amount</h5>
+                                        <h3 class="text-success" id="finalAmount">$0.00</h3>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="icon-circle bg-info mx-auto mb-2">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <h5>Interest Earned</h5>
+                                        <h3 class="text-info" id="interestEarned">$0.00</h3>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4 p-3 bg-light rounded">
+                                    <h6 class="text-muted">Calculation Details</h6>
+                                    <div id="calculationDetails"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Compound Interest Formula -->
+                        <div class="formula-box mt-4">
+                            <h4 class="mb-3">Compound Interest Formula</h4>
+                            <div class="fs-4 mb-3">
+                                <strong>A = P(1 + r/n)<sup>nt</sup></strong>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col-md-6">
+                                    <p><strong>A</strong> = Final amount</p>
+                                    <p><strong>P</strong> = Principal amount</p>
+                                    <p><strong>r</strong> = Annual interest rate</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>n</strong> = Compound frequency</p>
+                                    <p><strong>t</strong> = Time in years</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auto Factor Lookup Tab -->
+            <div class="tab-pane fade" id="auto-lookup" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-6 mb-4">
+                        <div class="card calculator-card h-100">
+                            <div class="card-header bg-white text-center py-3">
+                                <h3 class="mb-0">
+                                    <i class="fas fa-search text-success me-2"></i>
+                                    Auto Factor Lookup
+                                </h3>
+                                <p class="mb-0 mt-2">Let us find the factor for you automatically!</p>
+                            </div>
+                            <div class="card-body">
+                                <form id="autoLookupForm">
+                                    <div class="mb-3">
+                                        <label for="autoFactorType" class="form-label">
+                                            <i class="fas fa-tags text-primary me-1"></i>
+                                            What do you want to calculate?
+                                        </label>
+                                        <select class="form-select advanced-input" id="autoFactorType" required>
+                                            <option value="">Select calculation type...</option>
+                                            <optgroup label="Single Payment Calculations">
+                                                <option value="fp">Find Future Value from Present Value</option>
+                                                <option value="pf">Find Present Value from Future Value</option>
+                                            </optgroup>
+                                            <optgroup label="Uniform Series Calculations">
+                                                <option value="fa">Find Future Value from Annual Payments</option>
+                                                <option value="af">Find Annual Payment from Future Value</option>
+                                                <option value="pa">Find Present Value from Annual Payments</option>
+                                                <option value="ap">Find Annual Payment from Present Value</option>
+                                            </optgroup>
+                                            <optgroup label="Gradient Calculations">
+                                                <option value="ag">Find Annual Series from Gradient</option>
+                                                <option value="pg">Find Present Value from Gradient</option>
+                                            </optgroup>
+                                        </select>
+                                        <div class="form-text">Choose what you want to calculate - we'll find the right factor!</div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="autoRate" class="form-label">
+                                                    <i class="fas fa-percentage text-info me-1"></i>
+                                                    Interest Rate (%)
+                                                </label>
+                                                <input type="number" class="form-control advanced-input" id="autoRate" step="0.01" min="0" required>
+                                                <div class="form-text">Annual interest rate</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="autoPeriods" class="form-label">
+                                                    <i class="fas fa-clock text-warning me-1"></i>
+                                                    Periods (n)
+                                                </label>
+                                                <input type="number" class="form-control advanced-input" id="autoPeriods" min="1" required>
+                                                <div class="form-text">Number of time periods</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label for="autoKnownValue" class="form-label">
+                                            <i class="fas fa-dollar-sign text-success me-1"></i>
+                                            <span id="autoKnownValueLabel">Known Value ($)</span>
+                                        </label>
+                                        <input type="number" class="form-control advanced-input" id="autoKnownValue" step="0.01" min="0" required>
+                                        <div class="form-text" id="autoKnownValueHelp">Enter the known monetary value</div>
+                                    </div>
+
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-success btn-calculate">
+                                            <i class="fas fa-magic me-2"></i>
+                                            Auto Calculate with Factor Lookup
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <!-- Error Message for Auto Lookup -->
+                                <div id="autoLookupErrorMessage" class="error-message d-none"></div>
+                                
+                                <!-- Auto Lookup Information -->
+                                <div id="autoLookupInfo" class="mt-4 p-3 bg-light rounded d-none">
+                                    <h6 class="text-success">What We'll Do For You</h6>
+                                    <div id="autoLookupInfoContent"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Start Guide -->
+                        <div class="card mt-4">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    How Auto Lookup Works
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h6 class="text-success">🎯 No More Manual Factor Tables!</h6>
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-check text-success me-2"></i>Choose what you want to calculate</li>
+                                            <li><i class="fas fa-check text-success me-2"></i>Enter your interest rate and periods</li>
+                                            <li><i class="fas fa-check text-success me-2"></i>Enter your known value</li>
+                                            <li><i class="fas fa-check text-success me-2"></i>We automatically find and use the correct factor!</li>
+                                        </ul>
+                                        
+                                        <div class="alert alert-success mt-3">
+                                            <small><strong>Example:</strong> Want to find how much $1,000 becomes after 10 years at 5%? 
+                                            Just select "Find Future Value from Present Value", enter 5% rate, 10 periods, and $1,000. 
+                                            We'll automatically use the (F/P) factor!</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Auto Lookup Results -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card result-card h-100" id="autoLookupResultsCard" style="display: none;">
+                            <div class="card-header bg-success text-white text-center py-3">
+                                <h3 class="mb-0">
+                                    <i class="fas fa-magic me-2"></i>
+                                    Auto Lookup Result
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-4">
+                                    <div class="icon-circle bg-success mx-auto mb-3">
+                                        <i class="fas fa-bullseye"></i>
+                                    </div>
+                                    <h2 class="text-success" id="autoLookupResult">$0.00</h2>
+                                    <p class="text-muted" id="autoLookupResultLabel">Calculated Value</p>
+                                </div>
+                                
+                                <div class="p-3 bg-light rounded mb-3">
+                                    <h6 class="text-muted">Automatic Factor Lookup</h6>
+                                    <div id="autoLookupDetails"></div>
+                                </div>
+                                
+                                <div class="p-3 border rounded">
+                                    <h6 class="text-success">Factor Information</h6>
+                                    <div id="autoLookupFactorInfo"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Common Interest Rates Quick Reference -->
+                        <div class="card mt-4">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-chart-bar me-2"></i>
+                                    Common Interest Rates
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <h6 class="text-primary">Conservative</h6>
+                                        <p class="mb-1"><strong>2-4%</strong></p>
+                                        <small class="text-muted">Savings, CDs</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <h6 class="text-success">Moderate</h6>
+                                        <p class="mb-1"><strong>5-8%</strong></p>
+                                        <small class="text-muted">Bonds, REITs</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <h6 class="text-warning">Aggressive</h6>
+                                        <p class="mb-1"><strong>8-12%</strong></p>
+                                        <small class="text-muted">Stock Market</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manual Factor Calculator Tab -->
+            <div class="tab-pane fade" id="manual-factor" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-6 mb-4">
+                        <div class="card calculator-card h-100">
+                            <div class="card-header bg-white text-center py-3">
+                                <h3 class="mb-0">
+                                    <i class="fas fa-list-alt text-warning me-2"></i>
+                                    Manual Factor Calculator
+                                </h3>
+                                <p class="mb-0 mt-2">Use factors from engineering economics tables</p>
+                            </div>
+                            <div class="card-body">
+                                <form id="manualFactorForm">
+                                    <div class="mb-3">
+                                        <label for="factorType" class="form-label">
+                                            <i class="fas fa-tags text-primary me-1"></i>
+                                            Factor Type
+                                        </label>
+                                        <select class="form-select advanced-input" id="factorType" required>
+                                            <option value="">Select a factor...</option>
+                                            <optgroup label="Single Payment Factors">
+                                                <option value="fp">(F/P) - Future Worth of Present Sum</option>
+                                                <option value="pf">(P/F) - Present Worth of Future Sum</option>
+                                            </optgroup>
+                                            <optgroup label="Uniform Series Factors">
+                                                <option value="fa">(F/A) - Future Worth of Uniform Series</option>
+                                                <option value="af">(A/F) - Sinking Fund Factor</option>
+                                                <option value="pa">(P/A) - Present Worth of Uniform Series</option>
+                                                <option value="ap">(A/P) - Capital Recovery Factor</option>
+                                            </optgroup>
+                                            <optgroup label="Arithmetic Gradient Factors">
+                                                <option value="ag">(A/G) - Uniform Series for Gradient</option>
+                                                <option value="pg">(P/G) - Present Worth for Gradient</option>
+                                            </optgroup>
+                                        </select>
+                                        <div class="form-text">Choose the factor you want to use from your factor table</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="factorValue" class="form-label">
+                                            <i class="fas fa-calculator text-success me-1"></i>
+                                            Factor Value
+                                        </label>
+                                        <input type="number" class="form-control advanced-input" id="factorValue" step="0.000001" min="0" required>
+                                        <div class="form-text">Enter the factor value from your engineering economics table</div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label for="knownValue" class="form-label">
+                                            <i class="fas fa-dollar-sign text-info me-1"></i>
+                                            <span id="knownValueLabel">Known Value ($)</span>
+                                        </label>
+                                        <input type="number" class="form-control advanced-input" id="knownValue" step="0.01" min="0" required>
+                                        <div class="form-text" id="knownValueHelp">Enter the known monetary value</div>
+                                    </div>
+
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-warning btn-calculate">
+                                            <i class="fas fa-calculator me-2"></i>
+                                            Calculate Using Factor
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <!-- Error Message for Manual Factor -->
+                                <div id="manualFactorErrorMessage" class="error-message d-none"></div>
+                                
+                                <!-- Factor Information -->
+                                <div id="factorInfo" class="mt-4 p-3 bg-light rounded d-none">
+                                    <h6 class="text-primary">Selected Factor Information</h6>
+                                    <div id="factorInfoContent"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Comprehensive Factor Table Generator -->
+                        <div class="card mt-4">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-table me-2"></i>
+                                    Generate Factor Table
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="factorTableForm">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <label for="tableRate" class="form-label">Interest Rate (%)</label>
+                                            <input type="number" class="form-control" id="tableRate" step="0.01" min="0" max="100" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="maxPeriods" class="form-label">Max Periods</label>
+                                            <input type="number" class="form-control" id="maxPeriods" min="1" max="100" value="30">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-info mt-3">
+                                        <i class="fas fa-table me-2"></i>Generate Table
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manual Factor Results -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card result-card h-100" id="manualFactorResultsCard" style="display: none;">
+                            <div class="card-header bg-warning text-white text-center py-3">
+                                <h3 class="mb-0">
+                                    <i class="fas fa-chart-line me-2"></i>
+                                    Factor Calculation Result
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-4">
+                                    <div class="icon-circle bg-warning mx-auto mb-3">
+                                        <i class="fas fa-calculator"></i>
+                                    </div>
+                                    <h2 class="text-warning" id="manualFactorResult">$0.00</h2>
+                                    <p class="text-muted" id="manualFactorResultLabel">Calculated Value</p>
+                                </div>
+                                
+                                <div class="p-3 bg-light rounded">
+                                    <h6 class="text-muted">Calculation Details</h6>
+                                    <div id="manualFactorDetails"></div>
+                                </div>
+                                
+                                <div class="mt-3 p-3 border rounded">
+                                    <h6 class="text-primary">Factor Information</h6>
+                                    <div id="manualFactorInfo"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Factor Reference -->
+                        <div class="card mt-4">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-book me-2"></i>
+                                    Quick Factor Reference
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <h6 class="text-primary">Single Payment</h6>
+                                        <ul class="list-unstyled small">
+                                            <li><strong>(F/P)</strong>: Find F given P</li>
+                                            <li><strong>(P/F)</strong>: Find P given F</li>
+                                        </ul>
+                                        <h6 class="text-success mt-3">Uniform Series</h6>
+                                        <ul class="list-unstyled small">
+                                            <li><strong>(F/A)</strong>: Find F given A</li>
+                                            <li><strong>(A/F)</strong>: Find A given F</li>
+                                            <li><strong>(P/A)</strong>: Find P given A</li>
+                                            <li><strong>(A/P)</strong>: Find A given P</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-6">
+                                        <h6 class="text-info">Gradient</h6>
+                                        <ul class="list-unstyled small">
+                                            <li><strong>(A/G)</strong>: Find A given G</li>
+                                            <li><strong>(P/G)</strong>: Find P given G</li>
+                                        </ul>
+                                        <div class="mt-3">
+                                            <small class="text-muted">
+                                                <strong>Legend:</strong><br>
+                                                P = Present Value<br>
+                                                F = Future Value<br>
+                                                A = Annual Payment<br>
+                                                G = Gradient
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comprehensive Factor Table Display -->
+                <div class="row mt-4" id="comprehensiveFactorTableContainer" style="display: none;">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-info text-white">
+                                <h4 class="mb-0">
+                                    <i class="fas fa-table me-2"></i>
+                                    Comprehensive Factor Table
+                                </h4>
+                                <p class="mb-0 mt-2" id="tableHeaderInfo">Factor values for specified interest rate</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover" id="comprehensiveFactorTable">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>n</th>
+                                                <th>(F/P)</th>
+                                                <th>(P/F)</th>
+                                                <th>(F/A)</th>
+                                                <th>(A/F)</th>
+                                                <th>(P/A)</th>
+                                                <th>(A/P)</th>
+                                                <th>(A/G)</th>
+                                                <th>(P/G)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="comprehensiveFactorTableBody">
+                                            <!-- Table rows will be populated here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Scenarios Tab -->
+            <div class="tab-pane fade" id="advanced" role="tabpanel">
+                <div id="scenariosContainer" class="row">
+                    <!-- Scenarios will be populated here -->
+                </div>
+            </div>
+
+            <!-- Factor Tables Tab -->
+            <div class="tab-pane fade" id="factors" role="tabpanel">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card factors-table">
+                            <div class="card-header bg-primary text-white">
+                                <h4 class="mb-0">
+                                    <i class="fas fa-table me-2"></i>
+                                    Compound Interest Factors
+                                </h4>
+                                <p class="mb-0 mt-2">All factors calculated for your specified interest rate and time period</p>
+                            </div>
+                            <div class="card-body">
+                                <div id="factorsTableContainer">
+                                    <p class="text-muted text-center">Enter values in the Basic Calculator to see factor tables</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Content -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h2 class="text-center mb-4">
+                    <i class="fas fa-graduation-cap text-primary me-2"></i>
+                    Understanding Compound Interest
+                </h2>
+                
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <p class="lead">Compound interest is the eighth wonder of the world. He who understands it, earns it; he who doesn't, pays it. - Albert Einstein</p>
+                                
+                                <p>Compound interest is the process where the interest earned on an investment is reinvested to generate additional earnings over time. This creates a snowball effect where your money grows exponentially rather than linearly.</p>
+                                
+                                <h5>Key Benefits:</h5>
+                                <ul>
+                                    <li><strong>Time is your friend:</strong> The longer you invest, the more compound interest works in your favor</li>
+                                    <li><strong>Exponential growth:</strong> Your earnings generate their own earnings</li>
+                                    <li><strong>Passive income:</strong> Let your money work for you while you sleep</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Glossary Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h2 class="text-center mb-4">
+                    <i class="fas fa-book text-primary me-2"></i>
+                    Financial Glossary
+                </h2>
+                <div id="glossaryContainer" class="row">
+                    <!-- Glossary items will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Resources -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h2 class="text-center mb-4">
+                    <i class="fas fa-external-link-alt text-primary me-2"></i>
+                    Additional Resources
+                </h2>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-video fa-3x text-primary mb-3"></i>
+                                <h5>Video Tutorials</h5>
+                                <p>Watch Khan Academy's comprehensive videos on compound interest</p>
+                                <a href="https://www.khanacademy.org/economics-finance-domain/core-finance/interest-tutorial" target="_blank" class="btn btn-outline-primary">Watch Now</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-newspaper fa-3x text-success mb-3"></i>
+                                <h5>Articles</h5>
+                                <p>Read Investopedia's detailed articles on compound interest strategies</p>
+                                <a href="https://www.investopedia.com/terms/c/compoundinterest.asp" target="_blank" class="btn btn-outline-success">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calculator fa-3x text-info mb-3"></i>
+                                <h5>Advanced Tools</h5>
+                                <p>Explore SEC.gov's compound interest calculator with more features</p>
+                                <a href="https://www.sec.gov/investor/tools/mfcc/get-started" target="_blank" class="btn btn-outline-info">Explore Tools</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <div class="container">
+            <p>&copy; 2025 Advanced Financial Calculator. Built with Flask and Bootstrap.</p>
+            <p class="mb-0">
+                <small>Disclaimer: This calculator is for educational purposes only. Consult with a financial advisor for investment decisions.</small>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Enhanced calculator functionality
+        document.getElementById('calculatorForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                principal: parseFloat(document.getElementById('principal').value),
+                rate: parseFloat(document.getElementById('rate').value),
+                time: parseFloat(document.getElementById('time').value),
+                compound_frequency: parseInt(document.getElementById('compoundFrequency').value),
+                payment_amount: document.getElementById('paymentAmount').value ? 
+                              parseFloat(document.getElementById('paymentAmount').value) : null
+            };
+            
+            // Hide error message
+            document.getElementById('errorMessage').classList.add('d-none');
+            
+            try {
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayBasicResults(result);
+                    displayAdvancedScenarios(result);
+                    displayFactorTables(result);
+                } else {
+                    showError(result.error || 'An error occurred during calculation');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            }
+        });
+        
+        function displayBasicResults(result) {
+            const basicScenario = result.scenarios.single_payment_compound;
+            
+            document.getElementById('finalAmount').textContent = `$${basicScenario.final_amount.toLocaleString()}`;
+            document.getElementById('interestEarned').textContent = `$${basicScenario.interest_earned.toLocaleString()}`;
+            
+            // Show calculation details
+            const details = `
+                <small>
+                    <strong>Principal:</strong> $${result.input_parameters.principal.toLocaleString()}<br>
+                    <strong>Rate:</strong> ${result.input_parameters.rate}% annually<br>
+                    <strong>Time:</strong> ${result.input_parameters.time} years<br>
+                    <strong>Formula:</strong> ${basicScenario.formula}<br>
+                    <strong>Factor Used:</strong> ${basicScenario.factor_used}
+                </small>
+            `;
+            document.getElementById('calculationDetails').innerHTML = details;
+            
+            // Show results card
+            document.getElementById('resultsCard').style.display = 'block';
+        }
+        
+        function displayAdvancedScenarios(result) {
+            const container = document.getElementById('scenariosContainer');
+            let html = '';
+            
+            Object.entries(result.scenarios).forEach(([key, scenario]) => {
+                const iconMap = {
+                    'single_payment_compound': 'fas fa-coins',
+                    'single_payment_factor': 'fas fa-chart-line',
+                    'present_worth': 'fas fa-calendar-alt',
+                    'uniform_series_future': 'fas fa-chart-area',
+                    'uniform_series_present': 'fas fa-history',
+                    'capital_recovery': 'fas fa-credit-card',
+                    'sinking_fund': 'fas fa-piggy-bank'
+                };
+                
+                const colorMap = {
+                    'single_payment_compound': 'bg-primary',
+                    'single_payment_factor': 'bg-success',
+                    'present_worth': 'bg-info',
+                    'uniform_series_future': 'bg-warning',
+                    'uniform_series_present': 'bg-danger',
+                    'capital_recovery': 'bg-secondary',
+                    'sinking_fund': 'bg-dark'
+                };
+                
+                html += `
+                    <div class="col-lg-6 mb-4">
+                        <div class="card scenario-card h-100">
+                            <div class="card-header ${colorMap[key] || 'bg-primary'} text-white">
+                                <h5 class="mb-0">
+                                    <i class="${iconMap[key] || 'fas fa-calculator'} me-2"></i>
+                                    ${scenario.description}
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <strong>Formula:</strong> <code>${scenario.formula}</code>
+                                    <span class="factor-badge ms-2">${scenario.factor_used}</span>
+                                </div>
+                `;
+                
+                // Display results based on scenario type
+                if (scenario.final_amount) {
+                    html += `
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <h6 class="text-muted">Final Amount</h6>
+                                <h4 class="text-success">$${scenario.final_amount.toLocaleString()}</h4>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-muted">Interest Earned</h6>
+                                <h4 class="text-info">$${scenario.interest_earned.toLocaleString()}</h4>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (scenario.present_value) {
+                    html += `
+                        <div class="text-center mb-3">
+                            <h6 class="text-muted">Present Value</h6>
+                            <h4 class="text-primary">$${scenario.present_value.toLocaleString()}</h4>
+                        </div>
+                    `;
+                }
+                
+                if (scenario.required_annual_payment) {
+                    html += `
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <h6 class="text-muted">Annual Payment</h6>
+                                <h4 class="text-warning">$${scenario.required_annual_payment.toLocaleString()}</h4>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-muted">Total Interest</h6>
+                                <h4 class="text-danger">$${scenario.total_interest.toLocaleString()}</h4>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (scenario.required_annual_deposit) {
+                    html += `
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <h6 class="text-muted">Annual Deposit</h6>
+                                <h4 class="text-success">$${scenario.required_annual_deposit.toLocaleString()}</h4>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-muted">Target Amount</h6>
+                                <h4 class="text-primary">$${scenario.target_amount.toLocaleString()}</h4>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function displayFactorTables(result) {
+            const container = document.getElementById('factorsTableContainer');
+            const factors = result.factors;
+            
+            const html = `
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <h5 class="text-primary">Single Payment Factors</h5>
+                        <table class="table table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Factor</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>(F/P)</td>
+                                    <td>${factors.single_payment.compound_amount_factor}</td>
+                                </tr>
+                                <tr>
+                                    <td>(P/F)</td>
+                                    <td>${factors.single_payment.present_worth_factor}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <h5 class="text-success">Uniform Series Factors</h5>
+                        <table class="table table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Factor</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>(A/F)</td>
+                                    <td>${factors.uniform_series.sinking_fund_factor}</td>
+                                </tr>
+                                <tr>
+                                    <td>(A/P)</td>
+                                    <td>${factors.uniform_series.capital_recovery_factor}</td>
+                                </tr>
+                                <tr>
+                                    <td>(F/A)</td>
+                                    <td>${factors.uniform_series.compound_amount_factor}</td>
+                                </tr>
+                                <tr>
+                                    <td>(P/A)</td>
+                                    <td>${factors.uniform_series.present_worth_factor}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <h5 class="text-info">Arithmetic Gradient</h5>
+                        <table class="table table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Factor</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>(A/G)</td>
+                                    <td>${factors.arithmetic_gradient.uniform_series_factor}</td>
+                                </tr>
+                                <tr>
+                                    <td>(P/G)</td>
+                                    <td>${factors.arithmetic_gradient.present_worth_factor}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle me-2"></i>Factor Explanations:</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="mb-0">
+                                <li><strong>(F/P)</strong>: Future worth of present sum</li>
+                                <li><strong>(P/F)</strong>: Present worth of future sum</li>
+                                <li><strong>(A/F)</strong>: Uniform series for future sum</li>
+                                <li><strong>(A/P)</strong>: Uniform series for present sum</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="mb-0">
+                                <li><strong>(F/A)</strong>: Future worth of uniform series</li>
+                                <li><strong>(P/A)</strong>: Present worth of uniform series</li>
+                                <li><strong>(A/G)</strong>: Uniform series for gradient</li>
+                                <li><strong>(P/G)</strong>: Present worth for gradient</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('d-none');
+        }
+        
+        // Load glossary on page load
+        document.addEventListener('DOMContentLoaded', loadGlossary);
+        
+        // Manual Factor Calculator functionality
+        document.getElementById('manualFactorForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                factor_type: document.getElementById('factorType').value,
+                factor_value: parseFloat(document.getElementById('factorValue').value),
+                known_value: parseFloat(document.getElementById('knownValue').value)
+            };
+            
+            // Hide error message
+            document.getElementById('manualFactorErrorMessage').classList.add('d-none');
+            
+            try {
+                const response = await fetch('/api/manual-factor', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayManualFactorResults(result);
+                } else {
+                    showManualFactorError(result.error || 'An error occurred during calculation');
+                }
+            } catch (error) {
+                showManualFactorError('Network error. Please try again.');
+            }
+        });
+        
+        // Update input labels based on selected factor type
+        document.getElementById('factorType').addEventListener('change', function() {
+            const factorType = this.value;
+            const knownValueLabel = document.getElementById('knownValueLabel');
+            const knownValueHelp = document.getElementById('knownValueHelp');
+            const factorInfo = document.getElementById('factorInfo');
+            const factorInfoContent = document.getElementById('factorInfoContent');
+            
+            if (factorType) {
+                const labelMap = {
+                    'fp': { label: 'Present Value (P) ($)', help: 'Enter the present amount you want to find the future value for' },
+                    'pf': { label: 'Future Value (F) ($)', help: 'Enter the future amount you want to find the present value for' },
+                    'fa': { label: 'Annual Payment (A) ($)', help: 'Enter the annual payment amount' },
+                    'af': { label: 'Future Value (F) ($)', help: 'Enter the target future amount' },
+                    'pa': { label: 'Annual Payment (A) ($)', help: 'Enter the annual payment amount' },
+                    'ap': { label: 'Present Value (P) ($)', help: 'Enter the present amount' },
+                    'ag': { label: 'Gradient (G) ($)', help: 'Enter the gradient amount (increase per period)' },
+                    'pg': { label: 'Gradient (G) ($)', help: 'Enter the gradient amount (increase per period)' }
+                };
+                
+                const infoMap = {
+                    'fp': { name: '(F/P) - Single Payment Compound Amount Factor', formula: 'F = P × (F/P)', calculates: 'Future Value from Present Value' },
+                    'pf': { name: '(P/F) - Single Payment Present Worth Factor', formula: 'P = F × (P/F)', calculates: 'Present Value from Future Value' },
+                    'fa': { name: '(F/A) - Uniform Series Compound Amount Factor', formula: 'F = A × (F/A)', calculates: 'Future Value from Annual Payment' },
+                    'af': { name: '(A/F) - Sinking Fund Factor', formula: 'A = F × (A/F)', calculates: 'Annual Payment from Future Value' },
+                    'pa': { name: '(P/A) - Uniform Series Present Worth Factor', formula: 'P = A × (P/A)', calculates: 'Present Value from Annual Payment' },
+                    'ap': { name: '(A/P) - Capital Recovery Factor', formula: 'A = P × (A/P)', calculates: 'Annual Payment from Present Value' },
+                    'ag': { name: '(A/G) - Arithmetic Gradient Uniform Series Factor', formula: 'A = G × (A/G)', calculates: 'Uniform Series from Gradient' },
+                    'pg': { name: '(P/G) - Arithmetic Gradient Present Worth Factor', formula: 'P = G × (P/G)', calculates: 'Present Value from Gradient' }
+                };
+                
+                if (labelMap[factorType]) {
+                    knownValueLabel.textContent = labelMap[factorType].label;
+                    knownValueHelp.textContent = labelMap[factorType].help;
+                }
+                
+                if (infoMap[factorType]) {
+                    const info = infoMap[factorType];
+                    factorInfoContent.innerHTML = `
+                        <p><strong>Factor:</strong> ${info.name}</p>
+                        <p><strong>Formula:</strong> <code>${info.formula}</code></p>
+                        <p><strong>Calculates:</strong> ${info.calculates}</p>
+                    `;
+                    factorInfo.classList.remove('d-none');
+                } else {
+                    factorInfo.classList.add('d-none');
+                }
+            } else {
+                knownValueLabel.textContent = 'Known Value ($)';
+                knownValueHelp.textContent = 'Enter the known monetary value';
+                factorInfo.classList.add('d-none');
+            }
+        });
+        
+        // Factor Table Generator functionality
+        document.getElementById('factorTableForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const rate = parseFloat(document.getElementById('tableRate').value);
+            const maxPeriods = parseInt(document.getElementById('maxPeriods').value);
+            
+            try {
+                const response = await fetch(`/api/factor-table/${rate}/${maxPeriods}`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayComprehensiveFactorTable(result);
+                } else {
+                    alert(result.error || 'An error occurred generating the factor table');
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+            }
+        });
+        
+        function displayManualFactorResults(result) {
+            // Update result display
+            document.getElementById('manualFactorResult').textContent = `$${result.result.calculated_value.toLocaleString()}`;
+            document.getElementById('manualFactorResultLabel').textContent = result.inputs.output_label;
+            
+            // Show calculation details
+            const details = `
+                <small>
+                    <strong>Factor Type:</strong> ${result.factor_type}<br>
+                    <strong>Factor Value:</strong> ${result.inputs.factor_value}<br>
+                    <strong>${result.inputs.input_label}:</strong> $${result.inputs.known_value.toLocaleString()}<br>
+                    <strong>Calculation:</strong> ${result.result.calculation}
+                </small>
+            `;
+            document.getElementById('manualFactorDetails').innerHTML = details;
+            
+            // Show factor information
+            const factorInfo = `
+                <p><strong>Factor:</strong> ${result.factor_info.name}</p>
+                <p><strong>Formula:</strong> <code>${result.factor_info.formula}</code></p>
+                <p><strong>Purpose:</strong> ${result.factor_info.calculates}</p>
+            `;
+            document.getElementById('manualFactorInfo').innerHTML = factorInfo;
+            
+            // Show results card
+            document.getElementById('manualFactorResultsCard').style.display = 'block';
+        }
+        
+        function displayComprehensiveFactorTable(result) {
+            const container = document.getElementById('comprehensiveFactorTableContainer');
+            const tableBody = document.getElementById('comprehensiveFactorTableBody');
+            const headerInfo = document.getElementById('tableHeaderInfo');
+            
+            // Update header
+            headerInfo.textContent = `Factor values for ${result.rate}% interest rate (${result.periods} periods)`;
+            
+            // Clear existing rows
+            tableBody.innerHTML = '';
+            
+            // Add table rows
+            result.table_data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${row.period}</strong></td>
+                    <td>${row.fp.toFixed(6)}</td>
+                    <td>${row.pf.toFixed(6)}</td>
+                    <td>${row.fa.toFixed(6)}</td>
+                    <td>${row.af.toFixed(6)}</td>
+                    <td>${row.pa.toFixed(6)}</td>
+                    <td>${row.ap.toFixed(6)}</td>
+                    <td>${row.ag.toFixed(6)}</td>
+                    <td>${row.pg.toFixed(6)}</td>
+                `;
+                
+                // Add hover effect for factor copying
+                tr.addEventListener('click', function() {
+                    const cells = tr.querySelectorAll('td');
+                    const period = cells[0].textContent.trim();
+                    
+                    // Highlight the clicked row
+                    document.querySelectorAll('#comprehensiveFactorTable tbody tr').forEach(r => r.classList.remove('table-active'));
+                    tr.classList.add('table-active');
+                    
+                    // Optional: Show a tooltip or notification about clicking to copy values
+                    tr.title = `Period ${period} - Click on factor values to use in calculations`;
+                });
+                
+                tableBody.appendChild(tr);
+            });
+            
+            // Show the table
+            container.style.display = 'block';
+        }
+        
+        function showManualFactorError(message) {
+            const errorDiv = document.getElementById('manualFactorErrorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('d-none');
+        }
+        
+        async function loadGlossary() {
+            try {
+                const response = await fetch('/api/glossary');
+                const glossary = await response.json();
+                
+                const container = document.getElementById('glossaryContainer');
+                let html = '';
+                
+                Object.values(glossary).forEach((item, index) => {
+                    const icons = ['fas fa-coins', 'fas fa-percentage', 'fas fa-clock', 'fas fa-sync', 'fas fa-chart-line', 'fas fa-trophy', 'fas fa-calculator', 'fas fa-piggy-bank'];
+                    const colors = ['bg-primary', 'bg-success', 'bg-info', 'bg-warning', 'bg-danger', 'bg-secondary', 'bg-dark', 'bg-primary'];
+                    
+                    html += `
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="glossary-item h-100">
+                                <div class="d-flex align-items-start">
+                                    <div class="icon-circle ${colors[index % colors.length]} me-3 flex-shrink-0" style="width: 40px; height: 40px; font-size: 1rem;">
+                                        <i class="${icons[index % icons.length]}"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-2">${item.term}</h6>
+                                        <p class="mb-0 text-muted small">${item.definition}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading glossary:', error);
+            }
+        }
+
+        // Auto Factor Lookup functionality
+        document.getElementById('autoLookupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                factor_type: document.getElementById('autoFactorType').value,
+                rate: parseFloat(document.getElementById('autoRate').value),
+                periods: parseInt(document.getElementById('autoPeriods').value),
+                known_value: parseFloat(document.getElementById('autoKnownValue').value)
+            };
+            
+            // Hide error message
+            document.getElementById('autoLookupErrorMessage').classList.add('d-none');
+            
+            try {
+                const response = await fetch('/api/auto-factor-lookup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayAutoLookupResults(result);
+                } else {
+                    showAutoLookupError(result.error || 'An error occurred during calculation');
+                }
+            } catch (error) {
+                showAutoLookupError('Network error. Please try again.');
+            }
+        });
+
+        // Update input labels for auto lookup based on selected calculation type
+        document.getElementById('autoFactorType').addEventListener('change', function() {
+            const factorType = this.value;
+            const knownValueLabel = document.getElementById('autoKnownValueLabel');
+            const knownValueHelp = document.getElementById('autoKnownValueHelp');
+            const autoLookupInfo = document.getElementById('autoLookupInfo');
+            const autoLookupInfoContent = document.getElementById('autoLookupInfoContent');
+            
+            if (factorType) {
+                const labelMap = {
+                    'fp': { label: 'Present Value (P) ($)', help: 'Enter the present amount - we\'ll find how much it becomes in the future' },
+                    'pf': { label: 'Future Value (F) ($)', help: 'Enter the future amount - we\'ll find its present value' },
+                    'fa': { label: 'Annual Payment (A) ($)', help: 'Enter the annual payment - we\'ll find the total future value' },
+                    'af': { label: 'Future Value (F) ($)', help: 'Enter the target future amount - we\'ll find the required annual payment' },
+                    'pa': { label: 'Annual Payment (A) ($)', help: 'Enter the annual payment - we\'ll find its present value' },
+                    'ap': { label: 'Present Value (P) ($)', help: 'Enter the present amount - we\'ll find the required annual payment' },
+                    'ag': { label: 'Gradient (G) ($)', help: 'Enter the gradient amount (increase per period)' },
+                    'pg': { label: 'Gradient (G) ($)', help: 'Enter the gradient amount (increase per period)' }
+                };
+                
+                const explanationMap = {
+                    'fp': { 
+                        factor: '(F/P) - Future Worth Factor', 
+                        explanation: 'We\'ll automatically find the (F/P) factor for your interest rate and periods, then calculate: Future Value = Present Value × (F/P) factor',
+                        example: 'Example: $1,000 at 5% for 10 years becomes $1,628.89'
+                    },
+                    'pf': { 
+                        factor: '(P/F) - Present Worth Factor', 
+                        explanation: 'We\'ll automatically find the (P/F) factor for your interest rate and periods, then calculate: Present Value = Future Value × (P/F) factor',
+                        example: 'Example: $1,000 in 10 years at 5% is worth $613.91 today'
+                    },
+                    'fa': { 
+                        factor: '(F/A) - Uniform Series Future Worth Factor', 
+                        explanation: 'We\'ll automatically find the (F/A) factor for your interest rate and periods, then calculate: Future Value = Annual Payment × (F/A) factor',
+                        example: 'Example: $100/year for 10 years at 5% becomes $1,257.79'
+                    },
+                    'af': { 
+                        factor: '(A/F) - Sinking Fund Factor', 
+                        explanation: 'We\'ll automatically find the (A/F) factor for your interest rate and periods, then calculate: Annual Payment = Future Value × (A/F) factor',
+                        example: 'Example: To have $10,000 in 10 years at 5%, save $795.05/year'
+                    },
+                    'pa': { 
+                        factor: '(P/A) - Uniform Series Present Worth Factor', 
+                        explanation: 'We\'ll automatically find the (P/A) factor for your interest rate and periods, then calculate: Present Value = Annual Payment × (P/A) factor',
+                        example: 'Example: $100/year for 10 years at 5% is worth $772.17 today'
+                    },
+                    'ap': { 
+                        factor: '(A/P) - Capital Recovery Factor', 
+                        explanation: 'We\'ll automatically find the (A/P) factor for your interest rate and periods, then calculate: Annual Payment = Present Value × (A/P) factor',
+                        example: 'Example: $1,000 loan at 5% for 10 years requires $129.51/year payments'
+                    },
+                    'ag': { 
+                        factor: '(A/G) - Gradient Uniform Series Factor', 
+                        explanation: 'We\'ll automatically find the (A/G) factor for your interest rate and periods, then calculate: Uniform Series = Gradient × (A/G) factor',
+                        example: 'Example: $10 annual increase creates equivalent $38.73/year uniform series'
+                    },
+                    'pg': { 
+                        factor: '(P/G) - Gradient Present Worth Factor', 
+                        explanation: 'We\'ll automatically find the (P/G) factor for your interest rate and periods, then calculate: Present Value = Gradient × (P/G) factor',
+                        example: 'Example: $10 annual increase has present value of $299.01'
+                    }
+                };
+                
+                if (labelMap[factorType]) {
+                    knownValueLabel.textContent = labelMap[factorType].label;
+                    knownValueHelp.textContent = labelMap[factorType].help;
+                }
+                
+                if (explanationMap[factorType]) {
+                    const info = explanationMap[factorType];
+                    autoLookupInfoContent.innerHTML = `
+                        <p><strong>Factor:</strong> ${info.factor}</p>
+                        <p><strong>What we do:</strong> ${info.explanation}</p>
+                        <div class="alert alert-success mt-2">
+                            <small><strong>Quick Example:</strong> ${info.example}</small>
+                        </div>
+                    `;
+                    autoLookupInfo.classList.remove('d-none');
+                } else {
+                    autoLookupInfo.classList.add('d-none');
+                }
+            } else {
+                knownValueLabel.textContent = 'Known Value ($)';
+                knownValueHelp.textContent = 'Enter the known monetary value';
+                autoLookupInfo.classList.add('d-none');
+            }
+        });
+
+        function displayAutoLookupResults(result) {
+            // Update result display
+            document.getElementById('autoLookupResult').textContent = `$${result.result.calculated_value.toLocaleString()}`;
+            document.getElementById('autoLookupResultLabel').textContent = result.inputs.output_label;
+            
+            // Show automatic lookup details
+            const details = `
+                <small>
+                    <strong>Interest Rate:</strong> ${result.lookup_parameters.rate}%<br>
+                    <strong>Periods:</strong> ${result.lookup_parameters.periods}<br>
+                    <strong>Auto-Found Factor:</strong> ${result.lookup_parameters.automatically_found_factor}<br>
+                    <strong>${result.inputs.input_label}:</strong> $${result.inputs.known_value.toLocaleString()}<br>
+                    <strong>Calculation:</strong> ${result.result.calculation}
+                </small>
+            `;
+            document.getElementById('autoLookupDetails').innerHTML = details;
+            
+            // Show factor information
+            const factorInfo = `
+                <p><strong>Factor Used:</strong> ${result.factor_info.name}</p>
+                <p><strong>Formula:</strong> <code>${result.factor_info.formula}</code></p>
+                <p><strong>Purpose:</strong> ${result.factor_info.calculates}</p>
+                <div class="alert alert-info mt-2">
+                    <small><i class="fas fa-magic me-1"></i> <strong>Auto Lookup Success!</strong> We automatically found and used the correct factor (${result.lookup_parameters.automatically_found_factor}) for ${result.lookup_parameters.rate}% interest rate and ${result.lookup_parameters.periods} periods.</small>
+                </div>
+            `;
+            document.getElementById('autoLookupFactorInfo').innerHTML = factorInfo;
+            
+            // Show results card
+            document.getElementById('autoLookupResultsCard').style.display = 'block';
+        }
+
+        function showAutoLookupError(message) {
+            const errorDiv = document.getElementById('autoLookupErrorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('d-none');
+        }
+    </script>
+</body>
+</html>

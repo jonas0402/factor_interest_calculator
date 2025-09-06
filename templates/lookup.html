@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineering Economics Factors Lookup</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        
+        .lookup-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .lookup-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+        
+        .step-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            margin-right: 15px;
+        }
+        
+        .step-1 { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); }
+        .step-2 { background: linear-gradient(135deg, var(--secondary-color), var(--success-color)); }
+        .step-3 { background: linear-gradient(135deg, var(--success-color), var(--warning-color)); }
+        
+        .factor-card {
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        .factor-card:hover {
+            border-color: var(--secondary-color);
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .factor-card.selected {
+            border-color: var(--success-color);
+            background: #d4edda;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        .rate-option {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .rate-option:hover {
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .rate-option.selected {
+            border-color: var(--success-color);
+            background: #d4edda;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        .result-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .factor-acronym {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            margin: 0 5px;
+        }
+        
+        .calculation-steps {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 text-primary mb-3">
+                <i class="fas fa-table me-3"></i>
+                Engineering Economics Factors Lookup
+            </h1>
+            <p class="lead text-muted">3-Step Process: Rate → Factor → Period → Result</p>
+        </div>
+
+        <!-- Main Lookup Interface -->
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="lookup-card card">
+                    <div class="card-body p-5">
+                        
+                        <!-- Step 1: Select Interest Rate -->
+                        <div class="mb-5">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="step-badge step-1">1</div>
+                                <h4 class="mb-0">Select Interest Rate (%)</h4>
+                            </div>
+                            
+                            <div id="ratesContainer" class="row">
+                                <div class="col-12 text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading rates...</span>
+                                    </div>
+                                    <p class="mt-2">Loading available interest rates...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Select Factor Type -->
+                        <div class="mb-5" id="step2" style="display: none;">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="step-badge step-2">2</div>
+                                <h4 class="mb-0">Select Factor Type</h4>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">Single Payment Factors</h6>
+                                    <div class="factor-card" data-factor="F/P">
+                                        <div class="factor-acronym">F/P</div>
+                                        <div class="small">Future Worth of Present Sum</div>
+                                        <div class="text-muted small">F = P × (F/P,i%,n)</div>
+                                    </div>
+                                    <div class="factor-card" data-factor="P/F">
+                                        <div class="factor-acronym">P/F</div>
+                                        <div class="small">Present Worth of Future Sum</div>
+                                        <div class="text-muted small">P = F × (P/F,i%,n)</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <h6 class="text-success mb-3">Uniform Series Factors</h6>
+                                    <div class="factor-card" data-factor="F/A">
+                                        <div class="factor-acronym">F/A</div>
+                                        <div class="small">Future Worth of Uniform Series</div>
+                                        <div class="text-muted small">F = A × (F/A,i%,n)</div>
+                                    </div>
+                                    <div class="factor-card" data-factor="A/F">
+                                        <div class="factor-acronym">A/F</div>
+                                        <div class="small">Sinking Fund Factor</div>
+                                        <div class="text-muted small">A = F × (A/F,i%,n)</div>
+                                    </div>
+                                    <div class="factor-card" data-factor="P/A">
+                                        <div class="factor-acronym">P/A</div>
+                                        <div class="small">Present Worth of Uniform Series</div>
+                                        <div class="text-muted small">P = A × (P/A,i%,n)</div>
+                                    </div>
+                                    <div class="factor-card" data-factor="A/P">
+                                        <div class="factor-acronym">A/P</div>
+                                        <div class="small">Capital Recovery Factor</div>
+                                        <div class="text-muted small">A = P × (A/P,i%,n)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-6 mx-auto">
+                                    <h6 class="text-warning mb-3">Arithmetic Gradient Factors</h6>
+                                    <div class="factor-card" data-factor="A/G">
+                                        <div class="factor-acronym">A/G</div>
+                                        <div class="small">Uniform Series for Gradient</div>
+                                        <div class="text-muted small">A = G × (A/G,i%,n)</div>
+                                    </div>
+                                    <div class="factor-card" data-factor="P/G">
+                                        <div class="factor-acronym">P/G</div>
+                                        <div class="small">Present Worth for Gradient</div>
+                                        <div class="text-muted small">P = G × (P/G,i%,n)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Enter Period and Get Result -->
+                        <div class="mb-4" id="step3" style="display: none;">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="step-badge step-3">3</div>
+                                <h4 class="mb-0">Enter Period (n) and Get Factor Value</h4>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="periodInput" class="form-label">Period Number (n)</label>
+                                    <input type="number" class="form-control form-control-lg" id="periodInput" 
+                                           placeholder="Enter period number..." min="1">
+                                    <div class="form-text" id="periodHelp">Available periods: Loading...</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Selected Configuration</label>
+                                    <div class="p-3 bg-light rounded">
+                                        <div><strong>Rate:</strong> <span id="selectedRate">-</span>%</div>
+                                        <div><strong>Factor:</strong> <span id="selectedFactor">-</span></div>
+                                        <div><strong>Period:</strong> <span id="selectedPeriod">-</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <button class="btn btn-success btn-lg" id="lookupButton" disabled>
+                                    <i class="fas fa-search me-2"></i>
+                                    Lookup Factor Value
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Results Display -->
+                        <div id="resultsDisplay" style="display: none;">
+                            <div class="result-display">
+                                <h3 class="mb-3">Factor Lookup Result</h3>
+                                <div class="row text-center">
+                                    <div class="col-md-6">
+                                        <h2 id="factorValue">-</h2>
+                                        <p class="mb-0">Factor Value</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 id="factorDescription">Factor Description</h6>
+                                        <code id="factorFormula">Formula</code>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Optional Calculation -->
+                            <div class="calculation-steps">
+                                <h5 class="mb-3">
+                                    <i class="fas fa-calculator me-2"></i>
+                                    Optional: Calculate with Known Value
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <label for="knownValueInput" class="form-label" id="knownValueLabel">Known Value ($)</label>
+                                        <input type="number" class="form-control" id="knownValueInput" 
+                                               placeholder="Enter known value..." step="0.01" min="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button class="btn btn-primary w-100" id="calculateButton">
+                                            <i class="fas fa-equals me-2"></i>
+                                            Calculate
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div id="calculationResult" class="mt-3" style="display: none;">
+                                    <div class="alert alert-success">
+                                        <h6 class="mb-2">Calculation Result:</h6>
+                                        <div class="fs-4" id="calculatedValue">$0.00</div>
+                                        <small id="calculationFormula">Formula will appear here</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Reference Table -->
+        <div class="row mt-5">
+            <div class="col-lg-10 mx-auto">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-table me-2"></i>
+                            Complete Factor Table for Selected Rate
+                        </h5>
+                    </div>
+                    <div class="card-body" id="completeTableContainer" style="display: none;">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="completeFactorTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>n</th>
+                                        <th>F/P</th>
+                                        <th>P/F</th>
+                                        <th>A/F</th>
+                                        <th>A/P</th>
+                                        <th>F/A</th>
+                                        <th>P/A</th>
+                                        <th>A/G</th>
+                                        <th>P/G</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="completeFactorTableBody">
+                                    <!-- Table rows will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedRate = null;
+        let selectedFactor = null;
+        let currentLookupResult = null;
+        
+        // Load available rates on page load
+        document.addEventListener('DOMContentLoaded', loadAvailableRates);
+        
+        async function loadAvailableRates() {
+            try {
+                const response = await fetch('/api/factors-table/rates');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayRates(data.rates);
+                } else {
+                    showError('Error loading rates: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                showError('Network error loading rates. Please check if the server is running.');
+            }
+        }
+        
+        function displayRates(rates) {
+            const container = document.getElementById('ratesContainer');
+            let html = '';
+            
+            rates.forEach((rate, index) => {
+                const isFirstRow = index === 0 || index % 6 === 0;
+                if (isFirstRow && index > 0) html += '</div>';
+                if (isFirstRow) html += '<div class="row">';
+                
+                html += `
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                        <div class="rate-option" data-rate="${rate}">
+                            <div class="fw-bold">${rate}%</div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+            
+            // Add click handlers for rate selection
+            document.querySelectorAll('.rate-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    selectRate(parseFloat(this.dataset.rate));
+                });
+            });
+        }
+        
+        function selectRate(rate) {
+            selectedRate = rate;
+            
+            // Update UI
+            document.querySelectorAll('.rate-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector(`[data-rate="${rate}"]`).classList.add('selected');
+            document.getElementById('selectedRate').textContent = rate;
+            
+            // Show step 2
+            document.getElementById('step2').style.display = 'block';
+            
+            // Load periods for this rate
+            loadPeriodsForRate(rate);
+            
+            // Load complete table for this rate
+            loadCompleteTable(rate);
+            
+            // Reset subsequent steps
+            resetFromStep(2);
+        }
+        
+        async function loadPeriodsForRate(rate) {
+            try {
+                const response = await fetch(`/api/factors-table/periods/${rate}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const periodHelp = document.getElementById('periodHelp');
+                    periodHelp.textContent = `Available periods: 1-${Math.max(...data.periods)} (${data.total_periods} periods available)`;
+                } else {
+                    console.error('Error loading periods:', data.error);
+                }
+            } catch (error) {
+                console.error('Network error loading periods:', error);
+            }
+        }
+        
+        async function loadCompleteTable(rate) {
+            try {
+                const response = await fetch(`/api/factors-table/table/${rate}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayCompleteTable(data);
+                } else {
+                    console.error('Error loading complete table:', data.error);
+                }
+            } catch (error) {
+                console.error('Network error loading complete table:', error);
+            }
+        }
+        
+        function displayCompleteTable(data) {
+            const tbody = document.getElementById('completeFactorTableBody');
+            let html = '';
+            
+            data.table_data.forEach(row => {
+                html += `
+                    <tr>
+                        <td><strong>${row.n}</strong></td>
+                        <td>${typeof row['F/P'] === 'number' ? row['F/P'].toFixed(6) : row['F/P']}</td>
+                        <td>${typeof row['P/F'] === 'number' ? row['P/F'].toFixed(6) : row['P/F']}</td>
+                        <td>${typeof row['A/F'] === 'number' ? row['A/F'].toFixed(6) : row['A/F']}</td>
+                        <td>${typeof row['A/P'] === 'number' ? row['A/P'].toFixed(6) : row['A/P']}</td>
+                        <td>${typeof row['F/A'] === 'number' ? row['F/A'].toFixed(6) : row['F/A']}</td>
+                        <td>${typeof row['P/A'] === 'number' ? row['P/A'].toFixed(6) : row['P/A']}</td>
+                        <td>${typeof row['A/G'] === 'number' ? row['A/G'].toFixed(6) : row['A/G']}</td>
+                        <td>${typeof row['P/G'] === 'number' ? row['P/G'].toFixed(6) : row['P/G']}</td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+            document.getElementById('completeTableContainer').style.display = 'block';
+        }
+        
+        // Factor selection
+        document.querySelectorAll('.factor-card').forEach(card => {
+            card.addEventListener('click', function() {
+                selectFactor(this.dataset.factor);
+            });
+        });
+        
+        function selectFactor(factor) {
+            selectedFactor = factor;
+            
+            // Update UI
+            document.querySelectorAll('.factor-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-factor="${factor}"]`).classList.add('selected');
+            document.getElementById('selectedFactor').textContent = factor;
+            
+            // Show step 3
+            document.getElementById('step3').style.display = 'block';
+            
+            // Update known value label based on factor type
+            updateKnownValueLabel(factor);
+            
+            // Reset subsequent steps
+            resetFromStep(3);
+        }
+        
+        function updateKnownValueLabel(factor) {
+            const label = document.getElementById('knownValueLabel');
+            const labelMap = {
+                'F/P': 'Present Value (P) ($)',
+                'P/F': 'Future Value (F) ($)',
+                'A/F': 'Future Value (F) ($)',
+                'A/P': 'Present Value (P) ($)',
+                'F/A': 'Annual Payment (A) ($)',
+                'P/A': 'Annual Payment (A) ($)',
+                'A/G': 'Gradient (G) ($)',
+                'P/G': 'Gradient (G) ($)'
+            };
+            label.textContent = labelMap[factor] || 'Known Value ($)';
+        }
+        
+        // Period input and lookup
+        document.getElementById('periodInput').addEventListener('input', function() {
+            const period = parseInt(this.value);
+            if (period && period > 0) {
+                document.getElementById('selectedPeriod').textContent = period;
+                document.getElementById('lookupButton').disabled = false;
+            } else {
+                document.getElementById('selectedPeriod').textContent = '-';
+                document.getElementById('lookupButton').disabled = true;
+            }
+        });
+        
+        document.getElementById('lookupButton').addEventListener('click', performLookup);
+        
+        async function performLookup() {
+            const period = parseInt(document.getElementById('periodInput').value);
+            
+            if (!selectedRate || !selectedFactor || !period) {
+                alert('Please complete all steps before lookup.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/factors-table/lookup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        rate: selectedRate,
+                        factor_type: selectedFactor,
+                        period: period
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayLookupResult(result);
+                } else {
+                    alert('Lookup error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Network error during lookup. Please try again.');
+            }
+        }
+        
+        function displayLookupResult(result) {
+            currentLookupResult = result;
+            
+            // Display the factor value with same precision as in CSV
+            document.getElementById('factorValue').textContent = 
+                typeof result.factor_value === 'number' ? result.factor_value.toFixed(6) : result.factor_value;
+            document.getElementById('factorDescription').textContent = result.factor_info.name;
+            document.getElementById('factorFormula').textContent = result.factor_info.formula;
+            
+            // Show results
+            document.getElementById('resultsDisplay').style.display = 'block';
+        }
+        
+        // Optional calculation
+        document.getElementById('calculateButton').addEventListener('click', performCalculation);
+        
+        async function performCalculation() {
+            const knownValue = parseFloat(document.getElementById('knownValueInput').value);
+            const period = parseInt(document.getElementById('periodInput').value);
+            
+            if (!selectedRate || !selectedFactor || !period || !knownValue || knownValue <= 0) {
+                alert('Please enter a valid known value.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/factors-table/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        rate: selectedRate,
+                        factor_type: selectedFactor,
+                        period: period,
+                        known_value: knownValue
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayCalculationResult(result);
+                } else {
+                    alert('Calculation error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Network error during calculation. Please try again.');
+            }
+        }
+        
+        function displayCalculationResult(result) {
+            document.getElementById('calculatedValue').textContent = 
+                `$${result.calculation.calculated_value.toLocaleString()}`;
+            document.getElementById('calculationFormula').textContent = result.calculation.formula;
+            document.getElementById('calculationResult').style.display = 'block';
+        }
+        
+        function resetFromStep(step) {
+            if (step <= 2) {
+                selectedFactor = null;
+                document.querySelectorAll('.factor-card').forEach(card => card.classList.remove('selected'));
+                document.getElementById('selectedFactor').textContent = '-';
+                document.getElementById('step3').style.display = 'none';
+            }
+            if (step <= 3) {
+                document.getElementById('periodInput').value = '';
+                document.getElementById('selectedPeriod').textContent = '-';
+                document.getElementById('lookupButton').disabled = true;
+                document.getElementById('resultsDisplay').style.display = 'none';
+                document.getElementById('calculationResult').style.display = 'none';
+                document.getElementById('knownValueInput').value = '';
+            }
+        }
+        
+        function showError(message) {
+            const container = document.getElementById('ratesContainer');
+            container.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${message}
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

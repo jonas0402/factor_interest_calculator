@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineering Economics Factors Lookup</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        
+        .lookup-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: none;
+            max-width: 600px;
+            margin: 50px auto;
+        }
+        
+        .result-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .factor-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .form-select:focus, .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h1 class="display-4 text-primary mb-3">
+                Engineering Economics Factors Lookup
+            </h1>
+            <p class="lead text-muted">Select Rate → Factor → Enter Period → Get Value</p>
+        </div>
+
+        <div class="lookup-card card">
+            <div class="card-body p-5">
+                <form id="lookupForm">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="rateSelect" class="form-label fw-bold">Interest Rate (%)</label>
+                            <select class="form-select form-select-lg" id="rateSelect" required>
+                                <option value="">Select interest rate...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="factorSelect" class="form-label fw-bold">Factor Type</label>
+                            <select class="form-select form-select-lg" id="factorSelect" required>
+                                <option value="">Select factor type...</option>
+                                <option value="F/P">(F/P) - Future Worth of Present Sum</option>
+                                <option value="P/F">(P/F) - Present Worth of Future Sum</option>
+                                <option value="A/F">(A/F) - Sinking Fund Factor</option>
+                                <option value="A/P">(A/P) - Capital Recovery Factor</option>
+                                <option value="F/A">(F/A) - Future Worth of Uniform Series</option>
+                                <option value="P/A">(P/A) - Present Worth of Uniform Series</option>
+                                <option value="A/G">(A/G) - Arithmetic Gradient Uniform Series</option>
+                                <option value="P/G">(P/G) - Arithmetic Gradient Present Worth</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <label for="periodInput" class="form-label fw-bold">Period (n)</label>
+                            <input type="number" class="form-control form-control-lg" id="periodInput" 
+                                   placeholder="Enter period number..." min="1" required>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                🔍 Lookup Value
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="errorDisplay" class="alert alert-danger" style="display: none;"></div>
+
+                <div id="resultsDisplay" style="display: none;">
+                    <div class="result-display">
+                        <h4>Lookup Result</h4>
+                        <div class="factor-value" id="factorValue">-</div>
+                        <div class="mb-2">
+                            <strong>Rate:</strong> <span id="resultRate">-</span>% | 
+                            <strong>Factor:</strong> <span id="resultFactor">-</span> | 
+                            <strong>Period:</strong> <span id="resultPeriod">-</span>
+                        </div>
+                        <div class="small">
+                            <strong id="factorName">Factor Name</strong><br>
+                            <em id="factorFormula">Formula</em>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load available rates on page load
+        document.addEventListener('DOMContentLoaded', loadAvailableRates);
+        
+        async function loadAvailableRates() {
+            try {
+                const response = await fetch('/api/rates');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    populateRateSelect(data.rates);
+                } else {
+                    showError('Error loading rates: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                showError('Network error loading rates. Please check if the server is running.');
+            }
+        }
+        
+        function populateRateSelect(rates) {
+            const select = document.getElementById('rateSelect');
+            const defaultOption = select.querySelector('option[value=""]');
+            
+            // Clear existing options except the default
+            select.innerHTML = '';
+            select.appendChild(defaultOption);
+            
+            rates.forEach(rate => {
+                const option = document.createElement('option');
+                option.value = rate;
+                option.textContent = `${rate}%`;
+                select.appendChild(option);
+            });
+        }
+        
+        // Handle form submission
+        document.getElementById('lookupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const rate = parseFloat(document.getElementById('rateSelect').value);
+            const factorType = document.getElementById('factorSelect').value;
+            const period = parseInt(document.getElementById('periodInput').value);
+            
+            if (!rate || !factorType || !period) {
+                showError('Please fill in all fields');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/lookup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        rate: rate,
+                        factor_type: factorType,
+                        period: period
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayResult(result);
+                    hideError();
+                } else {
+                    showError('Lookup error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                showError('Network error during lookup. Please try again.');
+            }
+        });
+        
+        function displayResult(result) {
+            // Display the factor value with proper precision
+            const factorValue = typeof result.factor_value === 'number' ? 
+                result.factor_value.toFixed(6) : result.factor_value;
+            
+            document.getElementById('factorValue').textContent = factorValue;
+            document.getElementById('resultRate').textContent = result.rate;
+            document.getElementById('resultFactor').textContent = result.factor_type;
+            document.getElementById('resultPeriod').textContent = result.period;
+            document.getElementById('factorName').textContent = result.factor_info.name;
+            document.getElementById('factorFormula').textContent = result.factor_info.formula;
+            
+            document.getElementById('resultsDisplay').style.display = 'block';
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorDisplay');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('resultsDisplay').style.display = 'none';
+        }
+        
+        function hideError() {
+            document.getElementById('errorDisplay').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
